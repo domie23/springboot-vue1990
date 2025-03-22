@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LaoshixiangmubaomingDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.laoshi_id as laoshiId
+        ,a.laoshixiangmu_id as laoshixiangmuId
+        ,a.laoshixiangmubaoming_defen as laoshixiangmubaomingDefen
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LaoshixiangmubaomingView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,laoshi.laoshi_uuid_number as laoshiUuidNumber
+        ,laoshi.laoshi_name as laoshiName
+        ,laoshi.laoshi_phone as laoshiPhone
+        ,laoshi.laoshi_id_number as laoshiIdNumber
+        ,laoshi.laoshi_photo as laoshiPhoto
+        ,laoshi.laoshi_email as laoshiEmail
+        ,laoshixiangmu.laoshixiangmu_name as laoshixiangmuName
+        ,laoshixiangmu.laoshixiangmu_types as laoshixiangmuTypes
+        ,laoshixiangmu.laoshixiangmu_zhuanye_types as laoshixiangmuZhuanyeTypes
+        ,laoshixiangmu.laoshixiangmu_file as laoshixiangmuFile
+        ,laoshixiangmu.laoshixiangmu_content as laoshixiangmuContent
+        ,laoshixiangmu.laoshixiangmu_address as laoshixiangmuAddress
+        ,laoshixiangmu.laoshixiangmu_time as laoshixiangmuTime
+
+        FROM laoshixiangmubaoming  a
+        left JOIN laoshi laoshi ON a.laoshi_id = laoshi.id
+        left JOIN laoshixiangmu laoshixiangmu ON a.laoshixiangmu_id = laoshixiangmu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.laoshiId != null and params.laoshiId != ''">
+                and a.laoshi_id = #{params.laoshiId}
+            </if>
+            <if test="params.laoshixiangmuId != null and params.laoshixiangmuId != ''">
+                and a.laoshixiangmu_id = #{params.laoshixiangmuId}
+            </if>
+            <if test="params.laoshixiangmubaomingDefenStart != null ">
+                <![CDATA[  and a.laoshixiangmubaoming_defen >= #{params.laoshixiangmubaomingDefenStart}   ]]>
+            </if>
+            <if test="params.laoshixiangmubaomingDefenEnd != null ">
+                <![CDATA[  and a.laoshixiangmubaoming_defen <= #{params.laoshixiangmubaomingDefenEnd}   ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断老师的id不为空 -->
+            <if test=" params.laoshiIdNotNull != '' and params.laoshiIdNotNull != null and params.laoshiIdNotNull != 'null' ">
+                and a.laoshi_id IS NOT NULL
+            </if>
+            <if test=" params.laoshiUuidNumber != '' and params.laoshiUuidNumber != null and params.laoshiUuidNumber != 'null' ">
+                and laoshi.laoshi_uuid_number like CONCAT('%',#{params.laoshiUuidNumber},'%')
+            </if>
+            <if test=" params.laoshiName != '' and params.laoshiName != null and params.laoshiName != 'null' ">
+                and laoshi.laoshi_name like CONCAT('%',#{params.laoshiName},'%')
+            </if>
+            <if test=" params.laoshiPhone != '' and params.laoshiPhone != null and params.laoshiPhone != 'null' ">
+                and laoshi.laoshi_phone like CONCAT('%',#{params.laoshiPhone},'%')
+            </if>
+            <if test=" params.laoshiIdNumber != '' and params.laoshiIdNumber != null and params.laoshiIdNumber != 'null' ">
+                and laoshi.laoshi_id_number like CONCAT('%',#{params.laoshiIdNumber},'%')
+            </if>
+            <if test=" params.laoshiEmail != '' and params.laoshiEmail != null and params.laoshiEmail != 'null' ">
+                and laoshi.laoshi_email like CONCAT('%',#{params.laoshiEmail},'%')
+            </if>
+                <!-- 判断老师项目的id不为空 -->
+            <if test=" params.laoshixiangmuIdNotNull != '' and params.laoshixiangmuIdNotNull != null and params.laoshixiangmuIdNotNull != 'null' ">
+                and a.laoshixiangmu_id IS NOT NULL
+            </if>
+            <if test=" params.laoshixiangmuName != '' and params.laoshixiangmuName != null and params.laoshixiangmuName != 'null' ">
+                and laoshixiangmu.laoshixiangmu_name like CONCAT('%',#{params.laoshixiangmuName},'%')
+            </if>
+            <if test="params.laoshixiangmuTypes != null  and params.laoshixiangmuTypes != ''">
+                and laoshixiangmu.laoshixiangmu_types = #{params.laoshixiangmuTypes}
+            </if>
+
+            <if test="params.laoshixiangmuZhuanyeTypes != null  and params.laoshixiangmuZhuanyeTypes != ''">
+                and laoshixiangmu.laoshixiangmu_zhuanye_types = #{params.laoshixiangmuZhuanyeTypes}
+            </if>
+
+            <if test=" params.laoshixiangmuContent != '' and params.laoshixiangmuContent != null and params.laoshixiangmuContent != 'null' ">
+                and laoshixiangmu.laoshixiangmu_content like CONCAT('%',#{params.laoshixiangmuContent},'%')
+            </if>
+            <if test=" params.laoshixiangmuAddress != '' and params.laoshixiangmuAddress != null and params.laoshixiangmuAddress != 'null' ">
+                and laoshixiangmu.laoshixiangmu_address like CONCAT('%',#{params.laoshixiangmuAddress},'%')
+            </if>
+            <if test=" params.laoshixiangmuTimeStart != '' and params.laoshixiangmuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(laoshixiangmu.laoshixiangmu_time) >= UNIX_TIMESTAMP(#{params.laoshixiangmuTimeStart}) ]]>
+            </if>
+            <if test=" params.laoshixiangmuTimeEnd != '' and params.laoshixiangmuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(laoshixiangmu.laoshixiangmu_time) <= UNIX_TIMESTAMP(#{params.laoshixiangmuTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(laoshixiangmu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(laoshixiangmu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

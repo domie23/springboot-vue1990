@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LaoshixiangmuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.laoshixiangmu_name as laoshixiangmuName
+        ,a.laoshixiangmu_types as laoshixiangmuTypes
+        ,a.laoshixiangmu_zhuanye_types as laoshixiangmuZhuanyeTypes
+        ,a.laoshixiangmu_file as laoshixiangmuFile
+        ,a.laoshixiangmu_content as laoshixiangmuContent
+        ,a.laoshixiangmu_address as laoshixiangmuAddress
+        ,a.laoshixiangmu_time as laoshixiangmuTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LaoshixiangmuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM laoshixiangmu  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.laoshixiangmuName != '' and params.laoshixiangmuName != null and params.laoshixiangmuName != 'null' ">
+                and a.laoshixiangmu_name like CONCAT('%',#{params.laoshixiangmuName},'%')
+            </if>
+            <if test="params.laoshixiangmuTypes != null and params.laoshixiangmuTypes != ''">
+                and a.laoshixiangmu_types = #{params.laoshixiangmuTypes}
+            </if>
+            <if test="params.laoshixiangmuZhuanyeTypes != null and params.laoshixiangmuZhuanyeTypes != ''">
+                and a.laoshixiangmu_zhuanye_types = #{params.laoshixiangmuZhuanyeTypes}
+            </if>
+            <if test=" params.laoshixiangmuContent != '' and params.laoshixiangmuContent != null and params.laoshixiangmuContent != 'null' ">
+                and a.laoshixiangmu_content like CONCAT('%',#{params.laoshixiangmuContent},'%')
+            </if>
+            <if test=" params.laoshixiangmuAddress != '' and params.laoshixiangmuAddress != null and params.laoshixiangmuAddress != 'null' ">
+                and a.laoshixiangmu_address like CONCAT('%',#{params.laoshixiangmuAddress},'%')
+            </if>
+            <if test=" params.laoshixiangmuTimeStart != '' and params.laoshixiangmuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.laoshixiangmu_time) >= UNIX_TIMESTAMP(#{params.laoshixiangmuTimeStart}) ]]>
+            </if>
+            <if test=" params.laoshixiangmuTimeEnd != '' and params.laoshixiangmuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.laoshixiangmu_time) <= UNIX_TIMESTAMP(#{params.laoshixiangmuTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
